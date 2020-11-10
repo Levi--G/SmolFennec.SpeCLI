@@ -1,7 +1,8 @@
 # SmolFennec.SpeCLI
-SpeCLI provides a way to describe CLI behaviour of external processes.
+**SmolFennec** is a collective name for small libraries and tools released by [Levi](https://github.com/Levi--G) licensed under MIT and hosted on github.
+**SpeCLI** provides a way to describe CLI behaviour of external processes.
 
-
+<img src="https://raw.githubusercontent.com/Levi--G/SmolFennec.SpeCLI/master/SpeCLI/SmolFennec.png" width="300" height="300">
 
 [![NuGet version (SmolFennec.SpeCLI)](https://img.shields.io/nuget/v/SmolFennec.SpeCLI.svg)](https://www.nuget.org/packages/SmolFennec.SpeCLI/)
 
@@ -10,7 +11,7 @@ SpeCLI provides a way to describe CLI behaviour of external processes.
 Supported platforms: .Net Standard 2.0+
 
 When in trouble:
-[Submit an issue](https://github.com/Levi--G/JsonHCS.Net/issues)
+[Submit an issue](https://github.com/Levi--G/SmolFennec.SpeCLI/issues)
 
 ## Usage
 
