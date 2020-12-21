@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace SpeCLI.Attributes
 {
@@ -9,8 +7,8 @@ namespace SpeCLI.Attributes
     public class SwitchAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute, IParameterConfigureAttribute
     {
         public string Name { get; }
-        int? priority;
-        bool? @default;
+        private int? priority;
+        private bool? @default;
         public int Priority { set => priority = value; }
 
         public SwitchAttribute(string Name = null)

@@ -1,25 +1,31 @@
-﻿using System;
+﻿using SpeCLI.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SpeCLI.OutputProcessors
 {
     public class CloneOutputProcessor : IOutputProcessor
     {
         public bool ThrowOnStdError { get; set; } = false;
-        List<IOutputProcessor> Clones = new List<IOutputProcessor>();
+        private List<IOutputProcessor> Clones = new List<IOutputProcessor>();
 
         public CloneOutputProcessor(params IOutputProcessor[] clones)
         {
             Clones.AddRange(clones);
         }
 
-        public void PreExecutionStarted(Execution execution) { }
+        public void PreExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionStarted(Execution execution) { }
+        public void ExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionEnded(Execution execution) { }
+        public void ExecutionEnded(Execution execution)
+        {
+        }
 
         public IEnumerable<object> ParseOutput(Execution execution, string stdout)
         {

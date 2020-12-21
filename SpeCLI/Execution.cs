@@ -1,8 +1,7 @@
-﻿using System;
+﻿using SpeCLI.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
-using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -11,11 +10,17 @@ namespace SpeCLI
     public class Execution
     {
         public event EventHandler PreStarted;
+
         public event EventHandler Started;
+
         public event EventHandler Exited;
+
         public event DataReceivedEventHandler ErrorDataReceived;
+
         public event DataReceivedEventHandler OutputDataReceived;
+
         public event EventHandler<object> OnOutput;
+
         public event EventHandler<Exception> OnError;
 
         public IOutputProcessor OutputProcessor { get; private set; }
@@ -171,7 +176,7 @@ namespace SpeCLI
             }
         }
 
-        void Output(IEnumerable<object> objects)
+        private void Output(IEnumerable<object> objects)
         {
             if (objects == null)
             {

@@ -11,7 +11,12 @@
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Initial Version</PackageReleaseNotes>
+    <PackageReleaseNotes>Better consistency with default behaviour across classes
+Removed generic parameter
+Removed per type command parameter mapping
+Split configure and create logic in attributes
+Fixed bug in RegexCaptureOutputProcessor not finding mapping
+Versioned as 1.1.0, might break existing code</PackageReleaseNotes>
     <PackageIcon>SmolFennec.png</PackageIcon>
     <Description>A .NET CLI-executable invoke helper</Description>
     <Copyright>Levi Gillis @ 2020</Copyright>
@@ -25,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="C:\Users\Levi\Downloads\SmolFennec.png">
+    <None Include="SmolFennec.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>

@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SpeCLI.Extensions;
+using System;
 using System.Reflection;
-using System.Text;
 
 namespace SpeCLI.Attributes
 {
@@ -9,10 +8,10 @@ namespace SpeCLI.Attributes
     public class ParameterAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute, IParameterConfigureAttribute
     {
         public string Name { get; }
-        int? priority;
-        Type Type;
-        object Default;
-        bool? hideName;
+        private int? priority;
+        private Type Type;
+        private object Default;
+        private bool? hideName;
 
         public int Priority { get => priority.GetValueOrDefault(); set => priority = value; }
         public bool HideName { get => hideName.GetValueOrDefault(); set => hideName = value; }

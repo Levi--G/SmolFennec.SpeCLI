@@ -1,31 +1,30 @@
-﻿using Newtonsoft.Json.Serialization;
+﻿using SpeCLI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SpeCLI.OutputProcessors
 {
     public class RegexCaptureOutputProcessor : IOutputProcessor
     {
-        List<Tuple<Regex, Type>> Regexes = new List<Tuple<Regex, Type>>();
+        private List<Tuple<Regex, Type>> Regexes = new List<Tuple<Regex, Type>>();
         public bool ThrowOnStdError { get; set; } = false;
         public bool ThrowOnNoMatch { get; set; } = false;
         public bool ContinuousMode { get; set; } = false;
         public bool UseCachingMode { get; set; } = false;
 
-        string stdoutcache;
-        string stderrorcache;
+        private string stdoutcache;
+        private string stderrorcache;
 
-        List<Tuple<Type, Func<string[], object>>> PropertyMappings = new List<Tuple<Type, Func<string[], object>>>();
-        List<Tuple<Type, Func<Regex, Match, object>>> TypeMappings = new List<Tuple<Type, Func<Regex, Match, object>>>();
-        List<Tuple<Type, Func<Dictionary<string, string[]>, object>>> ConstructorMappings = new List<Tuple<Type, Func<Dictionary<string, string[]>, object>>>();
+        private List<Tuple<Type, Func<string[], object>>> PropertyMappings = new List<Tuple<Type, Func<string[], object>>>();
+        private List<Tuple<Type, Func<Regex, Match, object>>> TypeMappings = new List<Tuple<Type, Func<Regex, Match, object>>>();
+        private List<Tuple<Type, Func<Dictionary<string, string[]>, object>>> ConstructorMappings = new List<Tuple<Type, Func<Dictionary<string, string[]>, object>>>();
 
-        public RegexCaptureOutputProcessor() { }
+        public RegexCaptureOutputProcessor()
+        {
+        }
 
         public RegexCaptureOutputProcessor(Regex regex, Type type, Func<Regex, Match, object> typeMapping = null)
         {
@@ -37,11 +36,17 @@ namespace SpeCLI.OutputProcessors
             AddRegex(regex, type, typeMapping);
         }
 
-        public void PreExecutionStarted(Execution execution) { }
+        public void PreExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionStarted(Execution execution) { }
+        public void ExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionEnded(Execution execution) { }
+        public void ExecutionEnded(Execution execution)
+        {
+        }
 
         public IEnumerable<object> ParseError(Execution execution, string stderror)
         {
@@ -57,7 +62,7 @@ namespace SpeCLI.OutputProcessors
             return ParseMode(stdout, true);
         }
 
-        IEnumerable<object> ParseMode(string txt, bool stdout)
+        private IEnumerable<object> ParseMode(string txt, bool stdout)
         {
             if (ContinuousMode && (stdout ? stdoutcache != null : stderrorcache != null))
             {
@@ -98,7 +103,7 @@ namespace SpeCLI.OutputProcessors
             }
         }
 
-        bool Parse(string txt, out int index, out int length, out object match)
+        private bool Parse(string txt, out int index, out int length, out object match)
         {
             var m = Regexes.Select(k => (Match: k.Item1.Match(txt), Type: k.Item2, Regex: k.Item1)).FirstOrDefault(k => k.Match.Success);
             if (m.Match != null)
@@ -197,7 +202,7 @@ namespace SpeCLI.OutputProcessors
             return match.Groups.OfType<Group>().Select((g, i) => (name: regex.GroupNameFromNumber(i), value: g.Captures.OfType<Capture>().Select(c => c.Value).ToArray())).ToDictionary(g => g.name, g => g.value);
         }
 
-        Func<Regex, Match, object> GetOrCreateTypeMapping(Type type)
+        private Func<Regex, Match, object> GetOrCreateTypeMapping(Type type)
         {
             var mapping = TypeMappings.FirstOrDefault(m => m.Item1 == type)?.Item2;
             if (mapping == null)
@@ -211,7 +216,7 @@ namespace SpeCLI.OutputProcessors
             return mapping;
         }
 
-        Func<Regex, Match, object> CreateTypeMapping(Type type)
+        private Func<Regex, Match, object> CreateTypeMapping(Type type)
         {
             if (type == typeof(Match))
             {
@@ -244,7 +249,7 @@ namespace SpeCLI.OutputProcessors
             };
         }
 
-        Func<Dictionary<string, string[]>, object> GetOrCreateConstructorMapping(Type type)
+        private Func<Dictionary<string, string[]>, object> GetOrCreateConstructorMapping(Type type)
         {
             var mapping = ConstructorMappings.FirstOrDefault(m => m.Item1 == type)?.Item2;
             if (mapping == null)
@@ -258,7 +263,7 @@ namespace SpeCLI.OutputProcessors
             return mapping;
         }
 
-        Func<Dictionary<string, string[]>, object> CreateConstructorMapping(Type type)
+        private Func<Dictionary<string, string[]>, object> CreateConstructorMapping(Type type)
         {
             var c = type.GetConstructors().FirstOrDefault(co => co.GetParameters().Length == 0);
             if (c != null)
@@ -273,7 +278,7 @@ namespace SpeCLI.OutputProcessors
             };
         }
 
-        Func<string[], object> GetOrCreatePropertyMapping(Type type)
+        private Func<string[], object> GetOrCreatePropertyMapping(Type type)
         {
             var mapping = PropertyMappings.FirstOrDefault(m => m.Item1 == type)?.Item2;
             if (mapping == null)
@@ -287,7 +292,7 @@ namespace SpeCLI.OutputProcessors
             return mapping;
         }
 
-        Func<string[], object> CreatePropertyMapping(Type type)
+        private Func<string[], object> CreatePropertyMapping(Type type)
         {
             if (type == typeof(string[]))
             {

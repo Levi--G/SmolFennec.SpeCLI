@@ -1,10 +1,8 @@
 ﻿using SpeCLI.Attributes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SpeCLI
@@ -24,7 +22,7 @@ namespace SpeCLI
 
         public IEnumerable<Command> Commands => commands.Values;
 
-        Dictionary<string, Command> commands = new Dictionary<string, Command>();
+        private Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
         public Executable(string Path)
         {

@@ -1,21 +1,27 @@
 ﻿using Newtonsoft.Json.Linq;
+using SpeCLI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SpeCLI.OutputProcessors
 {
     public class JsonOutputProcessor : IOutputProcessor
     {
-        List<Tuple<Type, Func<JObject, bool>>> Handlers = new List<Tuple<Type, Func<JObject, bool>>>();
+        private List<Tuple<Type, Func<JObject, bool>>> Handlers = new List<Tuple<Type, Func<JObject, bool>>>();
         public bool ThrowOnStdError { get; set; } = false;
 
-        public void PreExecutionStarted(Execution execution) { }
+        public void PreExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionStarted(Execution execution) { }
+        public void ExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionEnded(Execution execution) { }
+        public void ExecutionEnded(Execution execution)
+        {
+        }
 
         public JsonOutputProcessor AddType(Type type, Func<JObject, bool> filter = null)
         {
@@ -42,7 +48,7 @@ namespace SpeCLI.OutputProcessors
             return Parse(stderror);
         }
 
-        IEnumerable<object> Parse(string txt)
+        private IEnumerable<object> Parse(string txt)
         {
             var j = JObject.Parse(txt);
             var t = Handlers.FirstOrDefault(h => h.Item2 != null && h.Item2(j)) ?? Handlers.FirstOrDefault(h => h.Item2 == null);

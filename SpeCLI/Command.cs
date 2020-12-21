@@ -1,9 +1,9 @@
 ﻿using SpeCLI.Attributes;
+using SpeCLI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace SpeCLI
 {
@@ -14,9 +14,9 @@ namespace SpeCLI
         public string DefaultParameterSpaceEncapsulation { get; set; }
         public string ParameterSeparator { get; set; } = " ";
 
-        List<IParameter> Parameters = new List<IParameter>();
+        private List<IParameter> Parameters = new List<IParameter>();
 
-        List<Tuple<string, string>> InputTypeMapping = new List<Tuple<string, string>>();
+        private List<Tuple<string, string>> InputTypeMapping = new List<Tuple<string, string>>();
 
         public IOutputProcessor Processor { get; set; }
 
@@ -113,7 +113,7 @@ namespace SpeCLI
             return this;
         }
 
-        void AddParameter(MemberInfo member)
+        private void AddParameter(MemberInfo member)
         {
             var aname = member.GetCustomAttribute<IParameterNameAttribute>()?.Name ?? member.Name;
             var ip = GetOrCreateParameter(member, aname);
@@ -121,7 +121,7 @@ namespace SpeCLI
             CreateMemberMapping(member.Name, aname);
         }
 
-        void AddParameter(ParameterInfo member)
+        private void AddParameter(ParameterInfo member)
         {
             var aname = member.GetCustomAttribute<IParameterNameAttribute>()?.Name ?? member.Name;
             var ip = GetOrCreateParameter(member, aname);
@@ -129,7 +129,7 @@ namespace SpeCLI
             CreateMemberMapping(member.Name, aname);
         }
 
-        IParameter GetOrCreateParameter(ICustomAttributeProvider info, string aname)
+        private IParameter GetOrCreateParameter(ICustomAttributeProvider info, string aname)
         {
             var ip = Parameters.FirstOrDefault(predicate => predicate.Name == aname);
             if (ip != null)
@@ -142,7 +142,7 @@ namespace SpeCLI
             return ip;
         }
 
-        void CompleteParameter(IParameter ip, ICustomAttributeProvider info)
+        private void CompleteParameter(IParameter ip, ICustomAttributeProvider info)
         {
             foreach (var config in info.GetCustomAttributes<IParameterConfigureAttribute>(false))
             {
@@ -155,7 +155,7 @@ namespace SpeCLI
             input = input ?? new Dictionary<string, object>();
             if (input is IDictionary<string, object> d)
             {
-                return ConstructArgumentsInternal(d);
+                return ConstructArgumentsInternal(DictionaryToDictionary(d));
             }
             else
             {
@@ -164,7 +164,13 @@ namespace SpeCLI
             }
         }
 
-        Dictionary<string, object> ObjectToDictionary(Type type, object input)
+        private Dictionary<string, object> DictionaryToDictionary(IDictionary<string, object> input)
+        {
+            return InputTypeMapping
+                .ToDictionary(m => m.Item2, m => input.TryGetValue(m.Item2, out object val) || input.TryGetValue(m.Item1, out val) ? val : null);
+        }
+
+        private Dictionary<string, object> ObjectToDictionary(Type type, object input)
         {
             return InputTypeMapping
                 .ToDictionary(m => m.Item2, m => GetMemberValue(type.GetMember(m.Item1).FirstOrDefault(mi => CanGetMemberValue(mi)), input));
@@ -178,7 +184,7 @@ namespace SpeCLI
             }
         }
 
-        static bool CanGetMemberValue(MemberInfo memberInfo)
+        private static bool CanGetMemberValue(MemberInfo memberInfo)
         {
             if (memberInfo is FieldInfo f)
             {
@@ -195,7 +201,7 @@ namespace SpeCLI
             return false;
         }
 
-        static object GetMemberValue(MemberInfo memberInfo, object forObject)
+        private static object GetMemberValue(MemberInfo memberInfo, object forObject)
         {
             if (memberInfo is FieldInfo f)
             {
@@ -212,7 +218,7 @@ namespace SpeCLI
             return null;
         }
 
-        string ConstructArgumentsInternal(IDictionary<string, object> input)
+        private string ConstructArgumentsInternal(IDictionary<string, object> input)
         {
             return string.Join(ParameterSeparator, Parameters.OrderBy(p => p.Priority).Select(p => p.GetObjectValue(input.TryGetValue(p.Name, out var o) ? o : null)).Where(p => p != null));
         }

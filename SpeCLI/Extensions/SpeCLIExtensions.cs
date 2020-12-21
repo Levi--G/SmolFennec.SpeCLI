@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Channels;
 
-namespace SpeCLI
+namespace SpeCLI.Extensions
 {
-    internal static class InternalExtensions
+    public static class SpeCLIExtensions
     {
-        internal static Exception WithData(this Exception ex, object key, object value)
+        public static Exception WithData(this Exception ex, object key, object value)
         {
             ex.Data.Add(key, value);
             return ex;
         }
 
-        internal static object GetDefault(this Type type)
+        public static object GetDefault(this Type type)
         {
             if (type.IsValueType)
             {
@@ -26,7 +25,7 @@ namespace SpeCLI
             return null;
         }
 
-        internal static IEnumerable<object> OfType(this IEnumerable<object> source, Type type)
+        public static IEnumerable<object> OfType(this IEnumerable<object> source, Type type)
         {
             foreach (var item in source)
             {
@@ -36,7 +35,8 @@ namespace SpeCLI
                 }
             }
         }
-        internal static async IAsyncEnumerable<T> ReadAllAsync<T>(this ChannelReader<T> @this, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+
+        public static async IAsyncEnumerable<T> ReadAllAsync<T>(this ChannelReader<T> @this, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             while (await @this.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -47,16 +47,17 @@ namespace SpeCLI
             }
         }
 
-        internal static T GetCustomAttribute<T>(this ICustomAttributeProvider provider, bool inherit = false)
+        public static T GetCustomAttribute<T>(this ICustomAttributeProvider provider, bool inherit = false)
         {
             return provider.GetCustomAttributes(typeof(T), inherit).Cast<T>().FirstOrDefault();
         }
 
-        internal static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider provider, bool inherit = false)
+        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider provider, bool inherit = false)
         {
             return provider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
         }
-        internal static Type GetReturnType(this MemberInfo info)
+
+        public static Type GetReturnType(this MemberInfo info)
         {
             if (info is PropertyInfo p)
             {

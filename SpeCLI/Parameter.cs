@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SpeCLI.Extensions;
+using System;
 using static SpeCLI.ParameterHelper;
 
 namespace SpeCLI
@@ -16,7 +15,6 @@ namespace SpeCLI
 
         public Parameter()
         {
-
         }
 
         public Parameter(string Name, Type Type = null, object Default = default, int Priority = 0)
@@ -34,7 +32,7 @@ namespace SpeCLI
             this.Type = Type ?? typeof(object);
             this.Default = Default;
             this.Priority = Priority;
-            Prefix = GetPrefix(ref Name)?? command.DefaultParameterPrefix ?? (Name.Length > 1 ? "--" : "-");
+            Prefix = GetPrefix(ref Name) ?? command.DefaultParameterPrefix ?? (Name.Length > 1 ? "--" : "-");
             ValueSeparator = GetSeparator(ref Name) ?? command.DefaultParameterValueSeparator ?? " ";
             this.Name = Name;
             SpaceEncapsulation = command.DefaultParameterSpaceEncapsulation ?? SpaceEncapsulation;
@@ -81,6 +79,7 @@ namespace SpeCLI
             this.SpaceEncapsulation = SpaceEncapsulation;
             return this;
         }
+
         public int Priority { get; set; }
         public string Name { get; set; }
 

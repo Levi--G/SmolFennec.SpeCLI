@@ -1,22 +1,28 @@
-﻿using System;
+﻿using SpeCLI.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SpeCLI.OutputProcessors
 {
     public class RegexSplitOutputProcessor : IOutputProcessor
     {
-        Dictionary<string, IOutputProcessor> Regexes = new Dictionary<string, IOutputProcessor>();
+        private Dictionary<string, IOutputProcessor> Regexes = new Dictionary<string, IOutputProcessor>();
         public bool ThrowOnStdError { get; set; } = false;
         public bool ThrowOnNoMatch { get; set; } = false;
 
-        public void PreExecutionStarted(Execution execution) { }
+        public void PreExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionStarted(Execution execution) { }
+        public void ExecutionStarted(Execution execution)
+        {
+        }
 
-        public void ExecutionEnded(Execution execution) { }
+        public void ExecutionEnded(Execution execution)
+        {
+        }
 
         public IEnumerable<object> ParseError(Execution execution, string stderror)
         {
@@ -32,7 +38,7 @@ namespace SpeCLI.OutputProcessors
             return Parse(execution, stdout, true);
         }
 
-        IEnumerable<object> Parse(Execution execution, string txt, bool stdout)
+        private IEnumerable<object> Parse(Execution execution, string txt, bool stdout)
         {
             var m = Regexes.FirstOrDefault(k => Regex.IsMatch(txt, k.Key));
             if (m.Key != null)
