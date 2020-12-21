@@ -115,7 +115,7 @@ exe.Add("ping")
 var objs = exe.ExecuteCommandAndParseList<object>("ping", new { Host = "Hostname" });
 ```
 
-An Execution object can also be abtained, altho short-lived (pun intended) these can allow more low-level access to the process, events and Stdin.
+An Execution object can also be obtained, altho short-lived (pun intended) these can allow more low-level access to the process, events and Stdin.
 
 ```cs
 var exec = exe.CreateExecution("ping", new PingArguments() { Host = "Hostname" });
