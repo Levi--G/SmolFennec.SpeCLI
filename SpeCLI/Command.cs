@@ -13,11 +13,10 @@ namespace SpeCLI
         public string DefaultParameterPrefix { get; set; }
         public string DefaultParameterSpaceEncapsulation { get; set; }
         public string ParameterSeparator { get; set; } = " ";
-        public bool UseCachingMode { get; set; } = false;
 
         List<IParameter> Parameters = new List<IParameter>();
 
-        List<Tuple<Type, List<Tuple<string, string>>>> InputTypeMappingCache;
+        List<Tuple<string, string>> InputTypeMapping = new List<Tuple<string, string>>();
 
         public IOutputProcessor Processor { get; set; }
 
@@ -27,16 +26,7 @@ namespace SpeCLI
 
         public Command AddParameter<T>(string Name, T Default = default, int Priority = 0)
         {
-            var Prefix = ParameterHelper.GetPrefix(ref Name) ?? DefaultParameterPrefix ?? (Name.Length > 1 ? "--" : "-");
-            var ValueSeparator = ParameterHelper.GetSeparator(ref Name) ?? DefaultParameterValueSeparator ?? " ";
-            var SpaceEncapsulation = DefaultParameterSpaceEncapsulation ?? "\"";
-            var p = new Parameter<T>()
-                .WithName(Name)
-                .WithPrefix(Prefix)
-                .WithValueSeparator(ValueSeparator)
-                .WithSpaceEncapsulation(SpaceEncapsulation)
-                .WithDefault(Default)
-                .WithPriority(Priority);
+            var p = new Parameter(this, Name, typeof(T), Default, Priority);
             Parameters.Add(p);
             return this;
         }
@@ -49,10 +39,71 @@ namespace SpeCLI
 
         public Command AddParametersFromType(Type type)
         {
-            Parameters.AddRange(type.GetProperties()
-                .Where(p => p.CanRead)
-                .Select(p => CreateParameter(p))
-                .Where(p => !Parameters.Any(pp => pp.Name == p.Name)));
+            foreach (var member in type.GetProperties().Cast<MemberInfo>().Concat(type.GetFields().Cast<MemberInfo>()).Concat(type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod).Where(x => !x.IsSpecialName && !x.IsConstructor && x.DeclaringType != typeof(object)).Cast<MemberInfo>())
+                .Where(m => CanGetMemberValue(m)))
+            {
+                AddParameter(member);
+            }
+            return this;
+        }
+
+        public Command LoadFromMethod(MethodInfo method)
+        {
+            var commandatt = method.GetCustomAttribute<CommandAttribute>();
+            if (commandatt != null)
+            {
+                if (commandatt.DefaultParameterPrefix != null)
+                {
+                    this.DefaultParameterPrefix = commandatt.DefaultParameterPrefix;
+                }
+                if (commandatt.DefaultParameterSpaceEncapsulation != null)
+                {
+                    this.DefaultParameterSpaceEncapsulation = commandatt.DefaultParameterSpaceEncapsulation;
+                }
+                if (commandatt.DefaultParameterValueSeparator != null)
+                {
+                    this.DefaultParameterValueSeparator = commandatt.DefaultParameterValueSeparator;
+                }
+                if (commandatt.ParameterSeparator != null)
+                {
+                    this.ParameterSeparator = commandatt.ParameterSeparator;
+                }
+            }
+
+            var extraparameters = method.GetCustomAttributes<IParameterSelectorAttribute>(false).Select(p =>
+            {
+                var ip = p.Create(null, this, null, null);
+                if (p is IParameterConfigureAttribute c)
+                {
+                    c.Configure(ip);
+                }
+                return ip;
+            });
+            Parameters.AddRange(extraparameters);
+
+            var parameters = method.GetParameters();
+            if (parameters.Length == 1 && parameters.First().GetCustomAttribute<IParameterSelectorAttribute>() == null)
+            {
+                if (parameters.First().ParameterType == typeof(object) || parameters.First().ParameterType == typeof(Dictionary<string, object>))
+                {
+                    foreach (var p in Parameters)
+                    {
+                        CreateMemberMapping(p.Name, p.Name);
+                    }
+                }
+                else
+                {
+                    AddParametersFromType(parameters.First().ParameterType);
+                }
+            }
+            else
+            {
+                foreach (var item in parameters)
+                {
+                    AddParameter(item);
+                }
+            }
+
             return this;
         }
 
@@ -62,16 +113,41 @@ namespace SpeCLI
             return this;
         }
 
-        IParameter CreateParameter(PropertyInfo propertyInfo)
+        void AddParameter(MemberInfo member)
         {
-            var attributes = propertyInfo.GetCustomAttributes();
-            var selector = (IParameterSelectorAttribute)(attributes.FirstOrDefault(a => typeof(IParameterSelectorAttribute).IsAssignableFrom(a.GetType())) ?? new ParameterAttribute());
-            var ip = selector.Create(propertyInfo);
-            foreach (var config in attributes.Where(a => typeof(IParameterConfigureAttribute).IsAssignableFrom(a.GetType())).Cast<IParameterConfigureAttribute>())
+            var aname = member.GetCustomAttribute<IParameterNameAttribute>()?.Name ?? member.Name;
+            var ip = GetOrCreateParameter(member, aname);
+            CompleteParameter(ip, member);
+            CreateMemberMapping(member.Name, aname);
+        }
+
+        void AddParameter(ParameterInfo member)
+        {
+            var aname = member.GetCustomAttribute<IParameterNameAttribute>()?.Name ?? member.Name;
+            var ip = GetOrCreateParameter(member, aname);
+            CompleteParameter(ip, member);
+            CreateMemberMapping(member.Name, aname);
+        }
+
+        IParameter GetOrCreateParameter(ICustomAttributeProvider info, string aname)
+        {
+            var ip = Parameters.FirstOrDefault(predicate => predicate.Name == aname);
+            if (ip != null)
+            {
+                return ip;
+            }
+            var selector = info.GetCustomAttribute<IParameterSelectorAttribute>(false) ?? new ParameterAttribute();
+            ip = selector.Create(aname, this, info as MemberInfo, info as ParameterInfo);
+            Parameters.Add(ip);
+            return ip;
+        }
+
+        void CompleteParameter(IParameter ip, ICustomAttributeProvider info)
+        {
+            foreach (var config in info.GetCustomAttributes<IParameterConfigureAttribute>(false))
             {
                 config.Configure(ip);
             }
-            return ip;
         }
 
         public string ConstructArguments(object input)
@@ -90,40 +166,16 @@ namespace SpeCLI
 
         Dictionary<string, object> ObjectToDictionary(Type type, object input)
         {
-            return GetOrCreateInputTypeMapping(type)
-                .ToDictionary(m => m.Item2, m => GetMemberValue(type.GetMember(m.Item1).First(mi => CanGetMemberValue(mi)), input));
+            return InputTypeMapping
+                .ToDictionary(m => m.Item2, m => GetMemberValue(type.GetMember(m.Item1).FirstOrDefault(mi => CanGetMemberValue(mi)), input));
         }
 
-        List<Tuple<string, string>> GetOrCreateInputTypeMapping(Type type)
+        private void CreateMemberMapping(string mname, string aname)
         {
-            var mapping = InputTypeMappingCache?.FirstOrDefault(m => m.Item1 == type)?.Item2;
-            if (mapping == null)
+            if (Parameters.Any(predicate => predicate.Name == aname))
             {
-                mapping = CreateInputTypeMapping(type);
-                if (UseCachingMode)
-                {
-                    InputTypeMappingCache ??= new List<Tuple<Type, List<Tuple<string, string>>>>();
-                    InputTypeMappingCache.Add(Tuple.Create(type, mapping));
-                }
+                InputTypeMapping.Add(Tuple.Create(mname, aname));
             }
-            return mapping;
-        }
-
-        List<Tuple<string, string>> CreateInputTypeMapping(Type type)
-        {
-            var l = new List<Tuple<string, string>>();
-            var members = type.GetMembers()
-                .Where(m => CanGetMemberValue(m))
-                .ToList();
-            l.AddRange(members
-                .Select(m => (m.Name, Actual: m.GetCustomAttributes().Where(a => typeof(IParameterNameAttribute).IsAssignableFrom(a.GetType())).FirstOrDefault()))
-                .Where(m => m.Actual != null)
-                .Select(m => Tuple.Create(m.Name, (m.Actual as IParameterNameAttribute).Name)));
-            l.AddRange(Parameters.Select(p => p.Name)
-                .Where(p => l.All(t => t.Item2 != p))
-                .Where(p => members.Any(m => p == m.Name))
-                .Select(p => Tuple.Create(p, p)));
-            return l;
         }
 
         static bool CanGetMemberValue(MemberInfo memberInfo)

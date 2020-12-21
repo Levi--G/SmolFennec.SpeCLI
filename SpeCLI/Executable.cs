@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SpeCLI.Attributes;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,22 +11,67 @@ namespace SpeCLI
 {
     public class Executable
     {
-        public string Path { get; }
+        public string Path { get; private set; }
 
-        public int Count => Commands.Count;
+        public int Count => commands.Count;
 
-        public Command this[string name] { get => Commands[name]; set => Commands[name] = value; }
+        public string DefaultParameterValueSeparator { get; set; }
+        public string DefaultParameterPrefix { get; set; }
+        public string DefaultParameterSpaceEncapsulation { get; set; }
+        public string DefaultParameterSeparator { get; set; }
 
-        Dictionary<string, Command> Commands = new Dictionary<string, Command>();
+        public Command this[string name] { get => commands[name]; set => commands[name] = value; }
+
+        public IEnumerable<Command> Commands => commands.Values;
+
+        Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
         public Executable(string Path)
         {
             this.Path = Path;
         }
 
+        public Executable()
+        {
+        }
+
+        public Executable LoadFromObject(Type type)
+        {
+            var exec = type.GetCustomAttribute<ExecutableAttribute>(false);
+            if (exec != null)
+            {
+                this.Path = exec.Path;
+                DefaultParameterValueSeparator = exec.DefaultParameterValueSeparator;
+                DefaultParameterPrefix = exec.DefaultParameterPrefix;
+                DefaultParameterSpaceEncapsulation = exec.DefaultParameterSpaceEncapsulation;
+                DefaultParameterSeparator = exec.DefaultParameterSeparator;
+            }
+            foreach (var method in type.GetMethods())
+            {
+                CommandAttribute command = method.GetCustomAttribute<CommandAttribute>(false);
+                if (command != null)
+                {
+                    var name = command.Name ?? method.Name;
+                    Add(name).LoadFromMethod(method);
+                }
+            }
+            //if (typeof(IExecutableConfigurator).IsAssignableFrom(type))
+            //{
+            //    var inst = (IExecutableConfigurator)Activator.CreateInstance(type);
+            //    inst.OnConfigure(this);
+            //    (inst as IDisposable)?.Dispose();
+            //}
+            return this;
+        }
+
+        public Executable LoadFromObject<T>()
+        {
+            return LoadFromObject(typeof(T));
+        }
+
         public Execution CreateExecution(string name, object arguments = null)
         {
-            return CreateExecution(Commands[name], arguments);
+            return CreateExecution(commands[name], arguments);
         }
 
         public Execution CreateExecution(Command command, object arguments = null)
@@ -37,7 +84,7 @@ namespace SpeCLI
 
         public Execution ExecuteCommand(string name, object arguments = null, EventHandler<object> onOutput = null)
         {
-            var c = Commands[name];
+            var c = commands[name];
             var e = CreateExecution(c, arguments);
             if (onOutput != null)
             {
@@ -65,34 +112,49 @@ namespace SpeCLI
         public Command Add(string name)
         {
             var c = new Command();
-            //TODO: add default config
+            if (DefaultParameterValueSeparator != null)
+            {
+                c.DefaultParameterValueSeparator = DefaultParameterValueSeparator;
+            }
+            if (DefaultParameterPrefix != null)
+            {
+                c.DefaultParameterPrefix = DefaultParameterPrefix;
+            }
+            if (DefaultParameterSpaceEncapsulation != null)
+            {
+                c.DefaultParameterSpaceEncapsulation = DefaultParameterSpaceEncapsulation;
+            }
+            if (DefaultParameterSeparator != null)
+            {
+                c.ParameterSeparator = DefaultParameterSeparator;
+            }
             Add(name, c);
             return c;
         }
 
         public void Add(string name, Command command)
         {
-            Commands.Add(name, command);
+            commands.Add(name, command);
         }
 
         public bool ContainsCommand(string name)
         {
-            return Commands.ContainsKey(name);
+            return commands.ContainsKey(name);
         }
 
         public bool Remove(string name)
         {
-            return Commands.Remove(name);
+            return commands.Remove(name);
         }
 
         public bool TryGetCommand(string name, out Command command)
         {
-            return Commands.TryGetValue(name, out command);
+            return commands.TryGetValue(name, out command);
         }
 
         public void Clear()
         {
-            Commands.Clear();
+            commands.Clear();
         }
     }
 }

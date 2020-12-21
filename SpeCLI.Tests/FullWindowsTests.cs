@@ -27,10 +27,10 @@ namespace SpeCLI.Tests
                 .WithProcessor(
                     new RegexCaptureOutputProcessor()
                     .AddRegex<PingResult>(new Regex(@"Reply from (?<ip>[^:]+): (?:bytes=(?<bytes>\d+) time[^\d]*(?<time>[^ ]+) TTL=(?<ttl>\d+)|(?<fail>.+))"))
-                    .AddPropertyMapping(s => TimeSpan.FromMilliseconds(int.Parse(s.TrimEnd('m', 's'))))
+                    .AddPropertyMapping((string s) => !string.IsNullOrEmpty(s) ? TimeSpan.FromMilliseconds(int.Parse(s.TrimEnd('m', 's'))) : (TimeSpan?)null)
                  );
 
-            var matches = exe.ExecuteCommandAndParseList<PingResult>("ping", new PingArguments() { Count = pings, Host = "Hostname", TTL = 2, Timeout = 50 });
+            var matches = exe.ExecuteCommandAndParseList<PingResult>("ping", new PingArguments() { Count = pings, Host = "127.0.0.1", Timeout = 50 });
             //var iae = exe.ExecuteCommandAndParseIAsyncEnumerable<PingResult>("ping", new PingArguments() { Host = "Hostname" });
             //var exec = exe.CreateExecution("ping", new PingArguments() { Host = "Hostname" });
             //exec.OutputDataReceived += (s, e) => { }; // raw stdout
@@ -40,6 +40,50 @@ namespace SpeCLI.Tests
             //exec.Start(); // Needs to be started manually;
             //exec.SendInputLine("Hello World!"); // Can send stdin
             Assert.Equal(pings, matches.Count);
+        }
+        [Fact]
+        public void PingClass()
+        {
+            var pings = 2;
+            var exe = new Executable();
+            exe.LoadFromObject<Pinger>();
+
+            var processor = new RegexCaptureOutputProcessor()
+                .AddRegex<PingResult>(new Regex(@"Reply from (?<ip>[^:]+): (?:bytes=(?<bytes>\d+) time[^\d]*(?<time>[^ ]+) TTL=(?<ttl>\d+)|(?<fail>.+))"))
+                .AddPropertyMapping((string s) => !string.IsNullOrEmpty(s) ? TimeSpan.FromMilliseconds(int.Parse(s.TrimEnd('m', 's'))) : (TimeSpan?)null);
+            foreach (var command in exe.Commands)
+            {
+                command.Processor = processor;
+            }
+
+            var matches = 0;
+            matches += exe.ExecuteCommandAndParseList<PingResult>("ping1", new PingArguments() { Count = pings, Host = "127.0.0.1", Timeout = 50 }).Count;
+            matches += exe.ExecuteCommandAndParseList<PingResult>("ping2", new { Count = pings, Host = "127.0.0.1", Timeout = 50 }).Count;
+            matches += exe.ExecuteCommandAndParseList<PingResult>("ping3", new { n = pings, Host = "127.0.0.1", w = 50 }).Count;
+            matches += exe.ExecuteCommandAndParseList<PingResult>("ping4", new { n = pings, Host = "127.0.0.1", w = 50 }).Count;
+            Assert.Equal(pings * 4, matches);
+        }
+
+        [Executable("ping")]
+        abstract class Pinger// : IExecutableConfigurator
+        {
+            [Command("ping1")]
+            public abstract List<PingResult> ping(PingArguments arguments);
+
+            [Command]
+            public abstract List<PingResult> ping2([Switch("t")] bool Continuous, [Parameter("n")] int? Count, [Parameter("w")] int? Timeout, [HideName] string Host);
+
+            [Command]
+            [Parameter("n")]
+            [Parameter("Host", HideName = true)]
+            [Parameter("w")]
+            public abstract List<PingResult> ping3(object arguments);
+
+            [Command]
+            [Parameter("n")]
+            [Parameter("Host", HideName = true)]
+            [Parameter("w")]
+            public abstract List<PingResult> ping4(Dictionary<string, object> arguments);
         }
 
         class PingArguments
@@ -87,7 +131,7 @@ namespace SpeCLI.Tests
             public string fail { get; set; }
             public bool Success => !string.IsNullOrEmpty(ip) && string.IsNullOrEmpty(fail);
             public int bytes { get; set; }
-            public TimeSpan time { get; set; }
+            public TimeSpan? time { get; set; }
             public int ttl { get; set; }
         }
     }

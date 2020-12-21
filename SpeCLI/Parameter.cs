@@ -19,14 +19,25 @@ namespace SpeCLI
 
         }
 
-        public Parameter(string Name, Type Type, object Default = default, int Priority = 0)
+        public Parameter(string Name, Type Type = null, object Default = default, int Priority = 0)
         {
-            this.Type = Type;
+            this.Type = Type ?? typeof(object);
             this.Default = Default;
             this.Priority = Priority;
             Prefix = GetPrefix(ref Name) ?? (Name.Length > 1 ? "--" : "-");
             ValueSeparator = GetSeparator(ref Name) ?? " ";
             this.Name = Name;
+        }
+
+        public Parameter(Command command, string Name, Type Type = null, object Default = default, int Priority = 0)
+        {
+            this.Type = Type ?? typeof(object);
+            this.Default = Default;
+            this.Priority = Priority;
+            Prefix = GetPrefix(ref Name)?? command.DefaultParameterPrefix ?? (Name.Length > 1 ? "--" : "-");
+            ValueSeparator = GetSeparator(ref Name) ?? command.DefaultParameterValueSeparator ?? " ";
+            this.Name = Name;
+            SpaceEncapsulation = command.DefaultParameterSpaceEncapsulation ?? SpaceEncapsulation;
         }
 
         public Parameter WithName(string Name)
@@ -98,17 +109,6 @@ namespace SpeCLI
                 return $"{Prefix}{Name}{ValueSeparator}{StringValue}";
             }
             return null;
-        }
-    }
-    public class Parameter<T> : Parameter
-    {
-        public Parameter()
-        {
-            Type = typeof(T);
-        }
-
-        public Parameter(string Name, object Default = null, int Priority = 0) : base(Name, typeof(T), Default, Priority)
-        {
         }
     }
 }

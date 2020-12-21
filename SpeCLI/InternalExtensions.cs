@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -34,7 +36,7 @@ namespace SpeCLI
                 }
             }
         }
-        internal static async IAsyncEnumerable<T> ReadAllAsync<T>(this ChannelReader<T> @this, [EnumeratorCancellation]CancellationToken cancellationToken = default)
+        internal static async IAsyncEnumerable<T> ReadAllAsync<T>(this ChannelReader<T> @this, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             while (await @this.WaitToReadAsync(cancellationToken).ConfigureAwait(false))
             {
@@ -43,6 +45,36 @@ namespace SpeCLI
                     yield return item;
                 }
             }
+        }
+
+        internal static T GetCustomAttribute<T>(this ICustomAttributeProvider provider, bool inherit = false)
+        {
+            return provider.GetCustomAttributes(typeof(T), inherit).Cast<T>().FirstOrDefault();
+        }
+
+        internal static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider provider, bool inherit = false)
+        {
+            return provider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
+        }
+        internal static Type GetReturnType(this MemberInfo info)
+        {
+            if (info is PropertyInfo p)
+            {
+                return p.PropertyType;
+            }
+            if (info is MethodInfo m)
+            {
+                return m.ReturnType;
+            }
+            if (info is Type t)
+            {
+                return t;
+            }
+            if (info is FieldInfo f)
+            {
+                return f.FieldType;
+            }
+            throw new Exception("non supported member");
         }
     }
 }

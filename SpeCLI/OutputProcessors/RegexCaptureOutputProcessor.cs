@@ -172,7 +172,7 @@ namespace SpeCLI.OutputProcessors
 
         public RegexCaptureOutputProcessor AddPropertyMapping(Type type, Func<string, object> propertyMapping)
         {
-            PropertyMappings.Add(Tuple.Create(type, (Func<string[], object>)(s => propertyMapping(s.Last()))));
+            PropertyMappings.Add(Tuple.Create(type, (Func<string[], object>)(s => propertyMapping(s.LastOrDefault()))));
             return this;
         }
 

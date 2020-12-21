@@ -7,7 +7,6 @@ namespace SpeCLI.Attributes
 {
     public interface IParameterSelectorAttribute
     {
-        IParameter Create(PropertyInfo propertyInfo);
-        IParameter Create(ParameterInfo parameterInfo);
+        IParameter Create(string defaultName, Command command, MemberInfo memberInfo, ParameterInfo parameterInfo);
     }
 }

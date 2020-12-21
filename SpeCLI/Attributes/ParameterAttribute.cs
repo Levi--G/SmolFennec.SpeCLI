@@ -5,28 +5,53 @@ using System.Text;
 
 namespace SpeCLI.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
-    public class ParameterAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Method, AllowMultiple = true)]
+    public class ParameterAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute, IParameterConfigureAttribute
     {
         public string Name { get; }
-        int Priority;
+        int? priority;
         Type Type;
+        object Default;
+        bool? hideName;
 
-        public ParameterAttribute(string Name = null, Type Type = null, int Priority = 0)
+        public int Priority { get => priority.GetValueOrDefault(); set => priority = value; }
+        public bool HideName { get => hideName.GetValueOrDefault(); set => hideName = value; }
+
+        public ParameterAttribute(string Name = null, Type Type = null, object Default = null)
         {
-            this.Priority = Priority;
             this.Name = Name;
             this.Type = Type;
+            this.Default = Default;
         }
 
-        public IParameter Create(PropertyInfo propertyInfo)
+        public IParameter Create(string defaultName, Command command, MemberInfo memberInfo, ParameterInfo parameterInfo)
         {
-            return new Parameter(Name ?? propertyInfo.Name, Type ?? propertyInfo.PropertyType, default, Priority);
+            var name = Name ?? defaultName;
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new Exception("Parameters not linked to a property or parameterer need a name");
+            }
+            return new Parameter(command, name, Type ?? memberInfo?.GetReturnType() ?? parameterInfo?.ParameterType);
         }
 
-        public IParameter Create(ParameterInfo parameterInfo)
+        public void Configure(IParameter parameter)
         {
-            return new Parameter(Name ?? parameterInfo.Name, Type ?? parameterInfo.ParameterType, default, Priority);
+            var p = parameter as Parameter;
+            if (p != null)
+            {
+                if (Default != null)
+                {
+                    p.Default = Default;
+                }
+                if (priority != null)
+                {
+                    p.Priority = priority.Value;
+                }
+                if (hideName != null)
+                {
+                    p.HideName = hideName.Value;
+                }
+            }
         }
     }
 }

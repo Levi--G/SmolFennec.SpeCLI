@@ -5,26 +5,54 @@ using System.Text;
 
 namespace SpeCLI.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
-    public class SwitchAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter | AttributeTargets.Method)]
+    public class SwitchAttribute : Attribute, IParameterSelectorAttribute, IParameterNameAttribute, IParameterConfigureAttribute
     {
         public string Name { get; }
-        int Priority;
+        int? priority;
+        bool? @default;
+        public int Priority { set => priority = value; }
 
-        public SwitchAttribute(string Name = null, int Priority = 0)
+        public SwitchAttribute(string Name = null)
         {
-            this.Priority = Priority;
             this.Name = Name;
         }
 
-        public IParameter Create(PropertyInfo propertyInfo)
+        public SwitchAttribute(bool Default)
         {
-            return new Switch(Name ?? propertyInfo.Name, Priority);
+            this.@default = Default;
         }
 
-        public IParameter Create(ParameterInfo parameterInfo)
+        public SwitchAttribute(string Name, bool Default)
         {
-            return new Switch(Name ?? parameterInfo.Name, Priority);
+            this.Name = Name;
+            this.@default = Default;
+        }
+
+        public IParameter Create(string defaultName, Command command, MemberInfo memberInfo, ParameterInfo parameterInfo)
+        {
+            var name = Name ?? defaultName;
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new Exception("Parameters not linked to a property or parameterer need a name");
+            }
+            return new Switch(command, name);
+        }
+
+        public void Configure(IParameter parameter)
+        {
+            var p = parameter as Switch;
+            if (p != null)
+            {
+                if (@default.HasValue)
+                {
+                    p.Default = @default.Value;
+                }
+                if (priority.HasValue)
+                {
+                    p.Priority = priority.Value;
+                }
+            }
         }
     }
 }
