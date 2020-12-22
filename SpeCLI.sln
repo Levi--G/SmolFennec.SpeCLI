@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpeCLI", "SpeCLI\SpeCLI.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpeCLI.Tests", "SpeCLI.Tests\SpeCLI.Tests.csproj", "{D3981367-EE10-47D0-AF3E-29A5CBEF2A5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeCLI.Proxy", "SpeCLI.Proxy\SpeCLI.Proxy.csproj", "{C2557CA4-B6C0-45AE-8617-745E557D6D64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeCLI.Tests.Proxy", "SpeCLI.Tests.Proxy\SpeCLI.Tests.Proxy.csproj", "{7C886D75-4D33-4A1E-8436-E2A0B4FE2536}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{D3981367-EE10-47D0-AF3E-29A5CBEF2A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3981367-EE10-47D0-AF3E-29A5CBEF2A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3981367-EE10-47D0-AF3E-29A5CBEF2A5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2557CA4-B6C0-45AE-8617-745E557D6D64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2557CA4-B6C0-45AE-8617-745E557D6D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2557CA4-B6C0-45AE-8617-745E557D6D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2557CA4-B6C0-45AE-8617-745E557D6D64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C886D75-4D33-4A1E-8436-E2A0B4FE2536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C886D75-4D33-4A1E-8436-E2A0B4FE2536}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C886D75-4D33-4A1E-8436-E2A0B4FE2536}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C886D75-4D33-4A1E-8436-E2A0B4FE2536}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

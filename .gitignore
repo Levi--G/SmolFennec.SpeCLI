@@ -3,3 +3,7 @@ SpeCLI.Tests/bin/
 SpeCLI.Tests/obj/
 SpeCLI/bin/
 SpeCLI/obj/
+SpeCLI.Tests.Proxy/bin/
+SpeCLI.Tests.Proxy/obj/
+SpeCLI.Proxy/obj/
+SpeCLI.Proxy/bin/
