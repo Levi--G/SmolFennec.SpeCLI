@@ -28,12 +28,22 @@ namespace SpeCLI
         {
             var p = new Parameter(this, Name, typeof(T), Default, Priority);
             Parameters.Add(p);
+            CreateMemberMapping(Name, Name);
+            return this;
+        }
+
+        public Command AddSwitch(string Name, bool Default = default, int Priority = 0)
+        {
+            var s = new Switch(this, Name, Default, Priority);
+            Parameters.Add(s);
+            CreateMemberMapping(Name, Name);
             return this;
         }
 
         public Command AddParameter(IParameter parameter)
         {
             Parameters.Add(parameter);
+            CreateMemberMapping(parameter.Name, parameter.Name);
             return this;
         }
 

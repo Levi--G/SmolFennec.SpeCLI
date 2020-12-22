@@ -85,17 +85,17 @@ namespace SpeCLI
 
         public string GetObjectValue(object Value)
         {
-            if (Value != null && Type.IsAssignableFrom(Value.GetType()))
+            var def = Type.GetDefault();
+            if (Value?.Equals(def) ?? true)
             {
-                var def = Type.GetDefault();
+                Value = Default;
                 if (Value?.Equals(def) ?? true)
                 {
-                    Value = Default;
-                    if (Value?.Equals(def) ?? true)
-                    {
-                        return null;
-                    }
+                    return null;
                 }
+            }
+            if (Value != null && Type.IsAssignableFrom(Value.GetType()))
+            {
                 string StringValue = $"{Value}";
                 if (StringValue.Contains(" "))
                 {
