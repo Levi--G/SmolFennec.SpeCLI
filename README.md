@@ -126,3 +126,72 @@ exec.OnError += (s, e) => { }; // Exceptions during parsing
 exec.Start(); // Needs to be started manually;
 exec.SendInputLine("Hello World!"); // Can send stdin
 ```
+
+# SmolFennec.SpeCLI.Proxy
+
+## Usage
+
+Define Arguments and results exactly like normal SpeCLI configuration. Create a Executable class:
+- Enter path to executable or the command in the Executable attribute
+- Inherit from IExecutable to add an OnConfiguring method to apply further configuration during proxy generation
+- Add any OutputProcessors in the OnConfiguring method
+
+```cs
+[Executable("ping")]
+public abstract class Ping : IExecutable
+{
+    public void OnConfiguring(Executable executable)
+    {
+        var processor = new RegexCaptureOutputProcessor()
+            .AddRegex<PingResult>(new Regex(@"Reply from (?<ip>[^:]+): (?:bytes=(?<bytes>\d+) time[^\d]*(?<time>[^ ]+) TTL=(?<ttl>\d+)|(?<fail>.+))"))
+            .AddPropertyMapping((string s) => !string.IsNullOrEmpty(s) ? TimeSpan.FromMilliseconds(int.Parse(s.TrimEnd('m', 's'))) : (TimeSpan?)null);
+        foreach (var command in executable.Commands)
+        {
+            command.Processor = processor;
+        }
+    }
+}
+```
+
+Configure commands in these steps:
+- Add Command attribute to a public abstract method with or without custom name
+- Add a supported return type: any object supported by selected OutputProcessors or a List<> or IAsyncEnumerable<> of that object, or an Execution object
+- Add arguments for your parameters:
+  - a single defined object containing parameter attributes (like ping/PingArguments)
+  - a set of parameters with their attributes (like ping2)
+  - an `object` or `Dictionary<string, object>` => need to add parameter attributes to the method (like ping3/4)
+- Adding parameters can be done on the method and defaults can be assigned without adding them as parameter if you want to make a specific method for a certain CLI option (like SinglePing)
+
+Examples:
+
+```cs
+[Command("ping1")]
+public abstract List<PingResult> ping(PingArguments arguments);
+[Command]
+public abstract List<PingResult> ping2([Switch("t")] bool Continuous, [Parameter("n")] int? Count, [Parameter("w")] int? Timeout, [HideName] string Host);
+[Command]
+[Parameter("n")]
+[Parameter("Host", HideName = true)]
+[Parameter("w")]
+public abstract List<PingResult> ping3(object arguments);
+[Command]
+[Parameter("n")]
+[Parameter("Host", HideName = true)]
+[Parameter("w")]
+public abstract List<PingResult> ping4(Dictionary<string, object> arguments);
+[Command]
+[Parameter("n", typeof(int?), 1)]
+public abstract PingResult SinglePing([HideName] string Host, [Parameter("w")] int? Timeout = null);
+[Command]
+[Parameter("n", typeof(int?), 1)]
+public abstract Execution SinglePingExecution([HideName] string Host, [Parameter("w")] int? Timeout = null);
+```
+
+In your code make and use the proxy like this:
+
+```cs
+var ping = SpeCLIProxy.Create<Ping>();
+var matches = ping.ping(new PingArguments() { Count = pings, Host = "127.0.0.1", Timeout = 50 });
+```
+
+This will run the CLI and parse the output all automatically, providing a strongly typed interface to a CLI you only need to configure once.
