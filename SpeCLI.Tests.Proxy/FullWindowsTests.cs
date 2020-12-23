@@ -22,6 +22,7 @@ namespace SpeCLI.Tests.Proxy
             matches += ping.ping4(new Dictionary<string, object>() { { "n", pings }, { "Host", "127.0.0.1" }, { "w", 50 } }).Count;
             Assert.Equal(pings * 4, matches);
             Assert.True(ping.SinglePing("127.0.0.1").Success);
+            Assert.NotNull(ping.SinglePingExecution("127.0.0.1"));
         }
 
         [Executable("ping")]
@@ -59,6 +60,10 @@ namespace SpeCLI.Tests.Proxy
             [Command]
             [Parameter("n", typeof(int?), 1)]
             public abstract PingResult SinglePing([HideName] string Host, [Parameter("w")] int? Timeout = null);
+
+            [Command]
+            [Parameter("n", typeof(int?), 1)]
+            public abstract Execution SinglePingExecution([HideName] string Host, [Parameter("w")] int? Timeout = null);
         }
 
         public class PingArguments
