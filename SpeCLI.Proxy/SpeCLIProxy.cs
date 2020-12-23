@@ -45,6 +45,11 @@ namespace SpeCLI.Proxy
                 return;
             }
             var exec = Executable.CreateExecution(commandname, arguments);
+            if (TargetType == typeof(Execution))
+            {
+                invocation.ReturnValue = exec;
+                return;
+            }
             if (TargetType.IsGenericType)
             {
                 var gt = TargetType.GetGenericTypeDefinition();
@@ -85,7 +90,6 @@ namespace SpeCLI.Proxy
                 .Invoke(this, new object[] { TargetType, exe });
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Accessed by reflection")]
         object GetGeneric<T>(Type TargetType, Execution exe)
         {
             if (TargetType == typeof(List<>))
