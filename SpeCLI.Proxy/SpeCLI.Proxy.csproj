@@ -2,11 +2,31 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>SmolFennec.SpeCLI.Proxy</PackageId>
+    <Authors>Levi Gillis</Authors>
+    <Company>Levi Gillis</Company>
+    <Product>SmolFennec.SpeCLI.Proxy</Product>
+    <Description>A proxy generator for SmolFennec.SpeCLI</Description>
+    <Copyright>Levi Gillis @ 2020</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</PackageProjectUrl>
+    <PackageIcon>SmolFennec.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>CLI</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="SmolFennec.SpeCLI" Version="1.1.1" />
+    <PackageReference Include="SmolFennec.SpeCLI" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\SpeCLI\SmolFennec.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
