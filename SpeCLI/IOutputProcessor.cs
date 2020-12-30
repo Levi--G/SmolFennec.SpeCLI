@@ -13,6 +13,6 @@ namespace SpeCLI
 
         void ExecutionStarted(Execution execution);
 
-        void ExecutionEnded(Execution execution);
+        IEnumerable<object> ExecutionEnded(Execution execution);
     }
 }

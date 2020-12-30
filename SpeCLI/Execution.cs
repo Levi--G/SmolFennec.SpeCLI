@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -12,6 +13,8 @@ namespace SpeCLI
         public event EventHandler PreStarted;
 
         public event EventHandler Started;
+
+        public event EventHandler PreExited;
 
         public event EventHandler Exited;
 
@@ -68,7 +71,7 @@ namespace SpeCLI
                 OutputProcessor = outputProcessor;
                 PreStarted += (s, e) => outputProcessor.PreExecutionStarted(this);
                 Started += (s, e) => outputProcessor.ExecutionStarted(this);
-                Exited += (s, e) => outputProcessor.ExecutionEnded(this);
+                PreExited += (s, e) => Output(outputProcessor.ExecutionEnded(this));
             }
             return this;
         }
@@ -85,7 +88,9 @@ namespace SpeCLI
 
         public void WaitForExit()
         {
-            Process.WaitForExit();
+            var s = new ManualResetEventSlim();
+            Exited += (n, e) => s.Set();
+            s.Wait();
         }
 
         public Task WaitForExitAsync()
@@ -147,6 +152,7 @@ namespace SpeCLI
 
         private void Process_Exited(object sender, EventArgs e)
         {
+            PreExited?.Invoke(sender, e);
             Exited?.Invoke(sender, e);
         }
 

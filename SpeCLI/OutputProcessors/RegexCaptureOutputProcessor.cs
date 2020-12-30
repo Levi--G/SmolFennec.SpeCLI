@@ -44,8 +44,9 @@ namespace SpeCLI.OutputProcessors
         {
         }
 
-        public void ExecutionEnded(Execution execution)
+        public IEnumerable<object> ExecutionEnded(Execution execution)
         {
+            return null;
         }
 
         public IEnumerable<object> ParseError(Execution execution, string stderror)

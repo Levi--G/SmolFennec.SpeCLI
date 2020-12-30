@@ -1,5 +1,6 @@
 ﻿using SpeCLI.Attributes;
 using SpeCLI.Extensions;
+using SpeCLI.OutputProcessors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -112,6 +113,16 @@ namespace SpeCLI
                 {
                     AddParameter(item);
                 }
+            }
+
+            var ret = method.ReturnType;
+            if (ret == typeof(string))
+            {
+                this.Processor ??= new StringOutputProcessor() { CombineOutput = true };
+            }
+            if (ret == typeof(List<string>) || ret == typeof(IAsyncEnumerable<string>))
+            {
+                this.Processor ??= new StringOutputProcessor();
             }
 
             return this;

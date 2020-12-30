@@ -19,8 +19,9 @@ namespace SpeCLI.OutputProcessors
         {
         }
 
-        public void ExecutionEnded(Execution execution)
+        public IEnumerable<object> ExecutionEnded(Execution execution)
         {
+            return null;
         }
 
         public JsonOutputProcessor AddType(Type type, Func<JObject, bool> filter = null)

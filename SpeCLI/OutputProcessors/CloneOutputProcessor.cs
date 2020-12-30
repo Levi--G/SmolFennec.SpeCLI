@@ -23,8 +23,9 @@ namespace SpeCLI.OutputProcessors
         {
         }
 
-        public void ExecutionEnded(Execution execution)
+        public IEnumerable<object> ExecutionEnded(Execution execution)
         {
+            return null;
         }
 
         public IEnumerable<object> ParseOutput(Execution execution, string stdout)
