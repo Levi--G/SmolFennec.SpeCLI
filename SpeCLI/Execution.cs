@@ -53,6 +53,7 @@ namespace SpeCLI
         public Execution WithRedirection()
         {
             Process.StartInfo.UseShellExecute = false;
+            Process.StartInfo.CreateNoWindow = true;
             Process.StartInfo.RedirectStandardOutput = true;
             Process.StartInfo.RedirectStandardError = true;
             Process.StartInfo.RedirectStandardInput = true;
