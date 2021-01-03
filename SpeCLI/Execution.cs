@@ -161,12 +161,21 @@ namespace SpeCLI
 
         public IAsyncEnumerable<T> ParseAsIAsyncEnumerable<T>()
         {
+            Exception ex = null;
             var buffer = Channel.CreateUnbounded<T>();
             OnOutput += async (_, o) =>
             {
                 if (o is T t)
                 {
                     await buffer.Writer.WriteAsync(t);
+                }
+            };
+            OnError += (s, e) =>
+            {
+                ex ??= e;
+                if (AbortOnErrorWhileParse)
+                {
+                    Process?.Kill();
                 }
             };
             Start();
@@ -177,7 +186,7 @@ namespace SpeCLI
             {
                 await WaitForExitAsync();
                 Dispose();
-                buffer.Writer.TryComplete();
+                buffer.Writer.TryComplete(ThrowOnErrorWhileParse ? ex : null);
             }
         }
 
