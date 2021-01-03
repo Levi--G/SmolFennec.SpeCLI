@@ -17,6 +17,7 @@ namespace SpeCLI
         public string DefaultParameterPrefix { get; set; }
         public string DefaultParameterSpaceEncapsulation { get; set; }
         public string DefaultParameterSeparator { get; set; }
+        public IExecutionConfigurator ExecutionConfigurator { get; set; }
 
         public Command this[string name] { get => commands[name]; set => commands[name] = value; }
 
@@ -62,6 +63,18 @@ namespace SpeCLI
             return this;
         }
 
+        public Executable ConfigureWith(IExecutableConfigurator configurator)
+        {
+            configurator.OnConfiguring(this);
+            return this;
+        }
+
+        public Executable ConfigureWith(IExecutionConfigurator configurator)
+        {
+            ExecutionConfigurator = configurator;
+            return this;
+        }
+
         public Executable LoadFromObject<T>()
         {
             return LoadFromObject(typeof(T));
@@ -77,7 +90,9 @@ namespace SpeCLI
             var p = new Process();
             p.StartInfo.FileName = Path;
             p.StartInfo.Arguments = command.ConstructArguments(arguments);
-            return new Execution() { Process = p }.ProcessWith(command.Processor);
+            var execution = new Execution() { Process = p }.ProcessWith(command.Processor);
+            ExecutionConfigurator?.OnConfiguring(execution);
+            return execution;
         }
 
         public Execution ExecuteCommand(string name, object arguments = null, EventHandler<object> onOutput = null)
