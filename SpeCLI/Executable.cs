@@ -54,12 +54,6 @@ namespace SpeCLI
                     Add(name).LoadFromMethod(method);
                 }
             }
-            //if (typeof(IExecutableConfigurator).IsAssignableFrom(type))
-            //{
-            //    var inst = (IExecutableConfigurator)Activator.CreateInstance(type);
-            //    inst.OnConfigure(this);
-            //    (inst as IDisposable)?.Dispose();
-            //}
             return this;
         }
 
@@ -87,11 +81,8 @@ namespace SpeCLI
 
         public Execution CreateExecution(Command command, object arguments = null)
         {
-            var p = new Process();
-            p.StartInfo.FileName = Path;
-            p.StartInfo.Arguments = command.ConstructArguments(arguments);
-            var execution = new Execution() { Process = p }.ProcessWith(command.Processor);
-            ExecutionConfigurator?.OnConfiguring(execution);
+            var execution = new Execution(Path, command.ConstructArguments(arguments), command);
+            ExecutionConfigurator?.OnConfiguring(command, arguments, execution);
             return execution;
         }
 
@@ -124,7 +115,7 @@ namespace SpeCLI
 
         public Command Add(string name)
         {
-            var c = new Command();
+            var c = new Command(name);
             if (DefaultParameterValueSeparator != null)
             {
                 c.DefaultParameterValueSeparator = DefaultParameterValueSeparator;
@@ -141,13 +132,13 @@ namespace SpeCLI
             {
                 c.ParameterSeparator = DefaultParameterSeparator;
             }
-            Add(name, c);
+            Add(c);
             return c;
         }
 
-        public void Add(string name, Command command)
+        public void Add(Command command)
         {
-            commands.Add(name, command);
+            commands.Add(command.Name, command);
         }
 
         public bool ContainsCommand(string name)

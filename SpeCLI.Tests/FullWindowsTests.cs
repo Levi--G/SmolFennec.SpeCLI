@@ -41,6 +41,7 @@ namespace SpeCLI.Tests
             //exec.SendInputLine("Hello World!"); // Can send stdin
             Assert.Equal(pings, matches.Count);
         }
+
         [Fact]
         public void PingClass()
         {

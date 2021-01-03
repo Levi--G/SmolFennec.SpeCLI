@@ -10,10 +10,17 @@ namespace SpeCLI
 {
     public class Command
     {
+        public string Name { get; }
+
         public string DefaultParameterValueSeparator { get; set; }
         public string DefaultParameterPrefix { get; set; }
         public string DefaultParameterSpaceEncapsulation { get; set; }
         public string ParameterSeparator { get; set; } = " ";
+
+
+        public bool DefaultExecutionThrowOnErrorWhileParse { get; set; }
+
+        public bool DefaultExecutionAbortOnErrorWhileParse { get; set; }
 
         private List<IParameter> Parameters = new List<IParameter>();
 
@@ -21,8 +28,9 @@ namespace SpeCLI
 
         public IOutputProcessor Processor { get; set; }
 
-        public Command()
+        public Command(string Name)
         {
+            this.Name = Name;
         }
 
         public Command AddParameter<T>(string Name, T Default = default, int Priority = 0)

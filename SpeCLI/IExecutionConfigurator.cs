@@ -6,6 +6,6 @@ namespace SpeCLI
 {
     public interface IExecutionConfigurator
     {
-        void OnConfiguring(Execution execution);
+        void OnConfiguring(Command command, object arguments, Execution execution);
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SpeCLI
 {
-    public class Execution
+    public class Execution : IDisposable
     {
         public event EventHandler PreStarted;
 
@@ -26,9 +26,33 @@ namespace SpeCLI
 
         public event EventHandler<Exception> OnError;
 
+        public bool ThrowOnErrorWhileParse { get; set; }
+
+        public bool AbortOnErrorWhileParse { get; set; }
+
         public IOutputProcessor OutputProcessor { get; private set; }
 
         public Process Process { get; set; }
+
+        public Command Command { get; }
+
+        public Execution(string path, string arguments)
+        {
+            Process = new Process();
+            Process.StartInfo.FileName = path;
+            Process.StartInfo.Arguments = arguments;
+        }
+
+        public Execution(string path, string arguments, Command command)
+        {
+            Process = new Process();
+            Process.StartInfo.FileName = path;
+            Process.StartInfo.Arguments = arguments;
+            this.Command = command;
+            ProcessWith(command.Processor);
+            ThrowOnErrorWhileParse = command.DefaultExecutionThrowOnErrorWhileParse;
+            AbortOnErrorWhileParse = command.DefaultExecutionAbortOnErrorWhileParse;
+        }
 
         public void Start()
         {
@@ -79,12 +103,12 @@ namespace SpeCLI
 
         public void SendInput(string tosend)
         {
-            Process.StandardInput.Write(tosend);
+            Process?.StandardInput.Write(tosend);
         }
 
         public void SendInputLine(string tosend)
         {
-            Process.StandardInput.WriteLine(tosend);
+            Process?.StandardInput.WriteLine(tosend);
         }
 
         public void WaitForExit()
@@ -115,10 +139,15 @@ namespace SpeCLI
             OnError += (s, e) =>
             {
                 ex ??= e;
+                if (AbortOnErrorWhileParse)
+                {
+                    Process?.Kill();
+                }
             };
             Start();
             WaitForExit();
-            if (ex != null)
+            Dispose();
+            if (ThrowOnErrorWhileParse && ex != null)
             {
                 throw ex;
             }
@@ -147,6 +176,7 @@ namespace SpeCLI
             async void CompleteBufferWhenEventsAreDone()
             {
                 await WaitForExitAsync();
+                Dispose();
                 buffer.Writer.TryComplete();
             }
         }
@@ -196,6 +226,12 @@ namespace SpeCLI
                     OnOutput?.Invoke(this, obj);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            Process?.Dispose();
+            Process = null;
         }
     }
 }
