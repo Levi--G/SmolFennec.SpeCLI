@@ -11,23 +11,13 @@
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Better consistency with default behaviour across classes
-Removed generic parameter
-Removed per type command parameter mapping
-Split configure and create logic in attributes
-Fixed bug in RegexCaptureOutputProcessor not finding mapping
-Versioned as 1.1.0, might break existing code
-Added StringOutputProcessor
-Added Default for string returning methods to be StringOutputProcessor
-Added output capturing for ExecutionEnded events now giving last chance for returning output
-Fix RegexSplit throws error on null
-New default behaviour when execution output is captured, hide window and expect application to handle output
-
-Add new interfaces to configure Executables and executions</PackageReleaseNotes>
+    <PackageReleaseNotes>Added exception options for throwing and aborting parsing in execution and command
+Commands keep their own name
+IExecutionConfigurator now passes command and arguments</PackageReleaseNotes>
     <PackageIcon>SmolFennec.png</PackageIcon>
     <Description>A .NET CLI-executable invoke helper</Description>
     <Copyright>Levi Gillis @ 2020-2021</Copyright>
-    <Version>1.1.4</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
