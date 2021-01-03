@@ -41,6 +41,10 @@ namespace SpeCLI.OutputProcessors
 
         private IEnumerable<object> Parse(Execution execution, string txt, bool stdout)
         {
+            if (string.IsNullOrEmpty(txt))
+            {
+                return null;
+            }
             var m = Regexes.FirstOrDefault(k => Regex.IsMatch(txt, k.Key));
             if (m.Key != null)
             {
