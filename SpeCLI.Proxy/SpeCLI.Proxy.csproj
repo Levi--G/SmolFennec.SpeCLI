@@ -14,13 +14,14 @@
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Updated SpeCLI</PackageReleaseNotes>
-    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Updated SpeCLI
+Using optional SpeCLI IExecutableConfigurator and IExecutionConfigurator instead of IExecutable (breaking change)</PackageReleaseNotes>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="SmolFennec.SpeCLI" Version="1.1.3" />
+    <PackageReference Include="SmolFennec.SpeCLI" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

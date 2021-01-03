@@ -133,12 +133,12 @@ exec.SendInputLine("Hello World!"); // Can send stdin
 
 Define Arguments and results exactly like normal SpeCLI configuration. Create a Executable class:
 - Enter path to executable or the command in the Executable attribute
-- Inherit from IExecutable to add an OnConfiguring method to apply further configuration during proxy generation
-- Add any OutputProcessors in the OnConfiguring method
+- Inherit from IExecutableConfigurator or IExecutionConfigurator to add an OnConfiguring method to apply further configuration during proxy or Execution generation (optional)
+- Add any OutputProcessors or additional configuration in the OnConfiguring method
 
 ```cs
 [Executable("ping")]
-public abstract class Ping : IExecutable
+public abstract class Ping : IExecutableConfigurator
 {
     public void OnConfiguring(Executable executable)
     {

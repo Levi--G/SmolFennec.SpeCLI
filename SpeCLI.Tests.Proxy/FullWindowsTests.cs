@@ -26,7 +26,7 @@ namespace SpeCLI.Tests.Proxy
         }
 
         [Executable("ping")]
-        public abstract class Ping : IExecutable
+        public abstract class Ping : IExecutableConfigurator
         {
             public void OnConfiguring(Executable executable)
             {

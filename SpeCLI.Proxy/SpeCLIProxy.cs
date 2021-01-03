@@ -13,7 +13,7 @@ namespace SpeCLI.Proxy
     {
         Executable Executable;
 
-        public static T Create<T>() where T : class, IExecutable
+        public static T Create<T>() where T : class
         {
             var proxyGenerator = new ProxyGenerator();
             var proxy = new SpeCLIProxy();
@@ -24,11 +24,18 @@ namespace SpeCLI.Proxy
 
         internal SpeCLIProxy() { }
 
-        internal void Configure(IExecutable executable)
+        internal void Configure(object executable)
         {
             var targettype = ProxyUtil.GetUnproxiedType(executable);
             Executable = new Executable().LoadFromObject(targettype);
-            executable.OnConfiguring(Executable);
+            if (executable is IExecutableConfigurator execonfig)
+            {
+                Executable.ConfigureWith(execonfig);
+            }
+            if (executable is IExecutionConfigurator executionconfig)
+            {
+                Executable.ConfigureWith(executionconfig);
+            }
         }
 
         public void Intercept(IInvocation invocation)
