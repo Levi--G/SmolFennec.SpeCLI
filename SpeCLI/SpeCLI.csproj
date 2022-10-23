@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>SmolFennec.SpeCLI</PackageId>
@@ -11,18 +11,23 @@
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Added exception options for throwing and aborting parsing in execution and command
-Commands keep their own name
-IExecutionConfigurator now passes command and arguments</PackageReleaseNotes>
+    <PackageReleaseNotes>Bugfix release</PackageReleaseNotes>
     <PackageIcon>SmolFennec.png</PackageIcon>
     <Description>A .NET CLI-executable invoke helper</Description>
-    <Copyright>Levi Gillis @ 2020-2021</Copyright>
-    <Version>1.2.0</Version>
+    <Copyright>Levi Gillis @ 2020-2022</Copyright>
+    <Version>1.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
   </ItemGroup>
 

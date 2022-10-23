@@ -1,11 +1,13 @@
 using System;
 using Xunit;
+using Xunit.Extensions;
 using SpeCLI;
 using SpeCLI.OutputProcessors;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Linq;
 using SpeCLI.Attributes;
+using System.Threading.Tasks;
 
 namespace SpeCLI.Tests
 {
@@ -63,6 +65,18 @@ namespace SpeCLI.Tests
             matches += exe.ExecuteCommandAndParseList<PingResult>("ping3", new { n = pings, Host = "127.0.0.1", w = 50 }).Count;
             matches += exe.ExecuteCommandAndParseList<PingResult>("ping4", new { n = pings, Host = "127.0.0.1", w = 50 }).Count;
             Assert.Equal(pings * 4, matches);
+        }
+
+        [Fact(Timeout = 10000)]
+        public async Task CheckTimeoutNoProcessor()
+        {
+            var exe = new Executable("ping");
+
+            exe.Add("ping")
+                .AddParametersFromType(typeof(PingArguments));
+
+            var exec = exe.ExecuteCommand("ping", new PingArguments() { Count = 1, Host = "127.0.0.1", Timeout = 50 });
+            await exec.WaitForExitAsync();
         }
 
         [Executable("ping")]

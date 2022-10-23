@@ -1,27 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
     <PackageId>SmolFennec.SpeCLI.Proxy</PackageId>
     <Authors>Levi Gillis</Authors>
     <Company>Levi Gillis</Company>
     <Product>SmolFennec.SpeCLI.Proxy</Product>
     <Description>A proxy generator for SmolFennec.SpeCLI</Description>
-    <Copyright>Levi Gillis @ 2020</Copyright>
+    <Copyright>Levi Gillis @ 2020-2022</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</PackageProjectUrl>
     <PackageIcon>SmolFennec.png</PackageIcon>
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Updated SpeCLI
-Using optional SpeCLI IExecutableConfigurator and IExecutionConfigurator instead of IExecutable (breaking change)</PackageReleaseNotes>
-    <Version>1.2.0</Version>
+    <PackageReleaseNotes>Bugfix Release</PackageReleaseNotes>
+    <Version>1.2.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="SmolFennec.SpeCLI" Version="1.2.0" />
+    <PackageReference Include="Castle.Core" Version="5.1.0" />
+    <PackageReference Include="SmolFennec.SpeCLI" Version="1.2.1" />
   </ItemGroup>
 
   <ItemGroup>

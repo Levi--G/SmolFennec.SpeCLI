@@ -41,13 +41,12 @@ namespace SpeCLI
             Process = new Process();
             Process.StartInfo.FileName = path;
             Process.StartInfo.Arguments = arguments;
+            Process.EnableRaisingEvents = true;
+            Process.Exited += Process_Exited;
         }
 
-        public Execution(string path, string arguments, Command command)
+        public Execution(string path, string arguments, Command command) : this(path, arguments)
         {
-            Process = new Process();
-            Process.StartInfo.FileName = path;
-            Process.StartInfo.Arguments = arguments;
             this.Command = command;
             ProcessWith(command.Processor);
             ThrowOnErrorWhileParse = command.DefaultExecutionThrowOnErrorWhileParse;
@@ -83,8 +82,6 @@ namespace SpeCLI
             Process.StartInfo.RedirectStandardInput = true;
             Process.OutputDataReceived += Process_OutputDataReceived;
             Process.ErrorDataReceived += Process_ErrorDataReceived;
-            Process.EnableRaisingEvents = true;
-            Process.Exited += Process_Exited;
             return this;
         }
 
