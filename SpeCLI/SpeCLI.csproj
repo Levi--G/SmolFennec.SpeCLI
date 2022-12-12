@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net5.0;net6.0;net7.0</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageId>SmolFennec.SpeCLI</PackageId>
@@ -11,15 +11,16 @@
     <RepositoryUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
-    <PackageReleaseNotes>Bugfix release</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated dependencies</PackageReleaseNotes>
     <PackageIcon>SmolFennec.png</PackageIcon>
     <Description>A .NET CLI-executable invoke helper</Description>
     <Copyright>Levi Gillis @ 2020-2022</Copyright>
-    <Version>1.2.1</Version>
+    <Version>1.2.3</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -32,6 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="SmolFennec.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
