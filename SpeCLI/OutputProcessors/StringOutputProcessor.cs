@@ -11,13 +11,25 @@ namespace SpeCLI.OutputProcessors
         public bool OutputEmpty { get; set; } = false;
         public bool CombineOutput { get; set; } = false;
 
-        StringBuilder builder;
+        StringBuilder builder = new StringBuilder();
 
         public IEnumerable<object> ExecutionEnded(Execution execution)
         {
             if (CombineOutput)
             {
-                yield return builder.ToString();
+                string s = null;
+                lock (builder)
+                {
+                    if (builder.Length > 0)
+                    {
+                        s = builder.ToString();
+                        builder.Clear();
+                    }
+                }
+                if (s != null)
+                {
+                    yield return s;
+                }
             }
         }
 
@@ -46,8 +58,10 @@ namespace SpeCLI.OutputProcessors
             {
                 if (CombineOutput)
                 {
-                    builder ??= new StringBuilder();
-                    builder.AppendLine(s);
+                    lock (builder)
+                    {
+                        builder.AppendLine(s);
+                    }
                 }
                 else
                 {
@@ -58,7 +72,10 @@ namespace SpeCLI.OutputProcessors
 
         public void PreExecutionStarted(Execution execution)
         {
-
+            lock (builder)
+            {
+                builder.Clear();
+            }
         }
     }
 }

@@ -17,15 +17,17 @@ namespace SpeCLI.OutputProcessors
 
         public void PreExecutionStarted(Execution execution)
         {
+            Clones.ForEach(c => c.PreExecutionStarted(execution));
         }
 
         public void ExecutionStarted(Execution execution)
         {
+            Clones.ForEach(c => c.ExecutionStarted(execution));
         }
 
         public IEnumerable<object> ExecutionEnded(Execution execution)
         {
-            return null;
+            return Clones.SelectMany(c => c.ExecutionEnded(execution));
         }
 
         public IEnumerable<object> ParseOutput(Execution execution, string stdout)
@@ -39,7 +41,7 @@ namespace SpeCLI.OutputProcessors
             {
                 throw new Exception($"StandardError recieved").WithData("Output", stderror);
             }
-            return Clones.SelectMany(c => c.ParseOutput(execution, stderror));
+            return Clones.SelectMany(c => c.ParseError(execution, stderror));
         }
 
         public CloneOutputProcessor AddClone(IOutputProcessor processor)

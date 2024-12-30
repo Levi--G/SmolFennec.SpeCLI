@@ -8,21 +8,29 @@ namespace SpeCLI.OutputProcessors
 {
     public class RegexSplitOutputProcessor : IOutputProcessor
     {
-        private Dictionary<string, IOutputProcessor> Regexes = new Dictionary<string, IOutputProcessor>();
+        private Dictionary<Regex, IOutputProcessor> Regexes = new Dictionary<Regex, IOutputProcessor>();
         public bool ThrowOnStdError { get; set; } = false;
         public bool ThrowOnNoMatch { get; set; } = false;
 
         public void PreExecutionStarted(Execution execution)
         {
+            foreach (var item in Regexes)
+            {
+                item.Value.PreExecutionStarted(execution);
+            }
         }
 
         public void ExecutionStarted(Execution execution)
         {
+            foreach (var item in Regexes)
+            {
+                item.Value.ExecutionStarted(execution);
+            }
         }
 
         public IEnumerable<object> ExecutionEnded(Execution execution)
         {
-            return null;
+            return Regexes.SelectMany(r => r.Value.ExecutionEnded(execution));
         }
 
         public IEnumerable<object> ParseError(Execution execution, string stderror)
@@ -45,7 +53,7 @@ namespace SpeCLI.OutputProcessors
             {
                 return null;
             }
-            var m = Regexes.FirstOrDefault(k => Regex.IsMatch(txt, k.Key));
+            var m = Regexes.FirstOrDefault(k => k.Key.IsMatch(txt));
             if (m.Key != null)
             {
                 if (stdout)
@@ -65,6 +73,12 @@ namespace SpeCLI.OutputProcessors
         }
 
         public RegexSplitOutputProcessor AddRegex(string regex, IOutputProcessor processor)
+        {
+            Regexes.Add(new Regex(regex), processor);
+            return this;
+        }
+
+        public RegexSplitOutputProcessor AddRegex(Regex regex, IOutputProcessor processor)
         {
             Regexes.Add(regex, processor);
             return this;

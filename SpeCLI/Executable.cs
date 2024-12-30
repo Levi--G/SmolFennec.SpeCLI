@@ -9,7 +9,7 @@ namespace SpeCLI
 {
     public class Executable
     {
-        public string Path { get; private set; }
+        public string Path { get; set; }
 
         public int Count => commands.Count;
 
