@@ -87,6 +87,10 @@ namespace SpeCLI
 
         public Execution ProcessWith(IOutputProcessor outputProcessor)
         {
+            if (OutputProcessor != null)
+            {
+                throw new ArgumentException("Cannot replace the IOuputProcessor by calling multiple times, use CloneOuputProcessor if multiple output was intended.");
+            }
             if (outputProcessor != null)
             {
                 WithRedirection();
@@ -110,7 +114,7 @@ namespace SpeCLI
 
         public void WaitForExit()
         {
-            var s = new ManualResetEventSlim();
+            using var s = new ManualResetEventSlim();
             Exited += (n, e) => s.Set();
             s.Wait();
         }
@@ -189,8 +193,22 @@ namespace SpeCLI
 
         private void Process_Exited(object sender, EventArgs e)
         {
-            PreExited?.Invoke(sender, e);
-            Exited?.Invoke(sender, e);
+            try
+            {
+                PreExited?.Invoke(sender, e);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(this, ex);
+            }
+            try
+            {
+                Exited?.Invoke(sender, e);
+            }
+            catch (Exception ex)
+            {
+                OnError?.Invoke(this, ex);
+            }
         }
 
         private void Process_ErrorDataReceived(object sender, DataReceivedEventArgs e)

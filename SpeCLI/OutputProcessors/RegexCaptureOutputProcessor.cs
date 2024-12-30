@@ -46,7 +46,7 @@ namespace SpeCLI.OutputProcessors
 
         public IEnumerable<object> ExecutionEnded(Execution execution)
         {
-            return null;
+            return Enumerable.Empty<object>();
         }
 
         public IEnumerable<object> ParseError(Execution execution, string stderror)

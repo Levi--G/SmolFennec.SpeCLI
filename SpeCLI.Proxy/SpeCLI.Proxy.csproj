@@ -7,7 +7,7 @@
     <Company>Levi Gillis</Company>
     <Product>SmolFennec.SpeCLI.Proxy</Product>
     <Description>A proxy generator for SmolFennec.SpeCLI</Description>
-    <Copyright>Levi Gillis @ 2020-2022</Copyright>
+    <Copyright>Levi Gillis @ 2020-2024</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Levi--G/SmolFennec.SpeCLI</PackageProjectUrl>
     <PackageIcon>SmolFennec.png</PackageIcon>
@@ -15,13 +15,13 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>CLI</PackageTags>
     <PackageReleaseNotes>Updated dependencies</PackageReleaseNotes>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="5.1.1" />
-    <PackageReference Include="SmolFennec.SpeCLI" Version="1.3.0" />
+    <PackageReference Include="SmolFennec.SpeCLI" Version="1.3.1" />
   </ItemGroup>
 
   <ItemGroup>
